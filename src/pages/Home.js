@@ -3,7 +3,6 @@ import Stack from "@mui/material/Stack";
 import List from "@mui/material/List";
 import ListItem from "@mui/material/ListItem";
 import ListItemText from "@mui/material/ListItemText";
-import Button from "@mui/material/Button";
 import Switch from "@mui/material/Switch";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import Divider from "@mui/material/Divider";
@@ -11,7 +10,7 @@ import ExpandLess from "@mui/icons-material/ExpandLess";
 import ExpandMore from "@mui/icons-material/ExpandMore";
 import Collapse from "@mui/material/Collapse";
 import { Typography } from "@mui/material";
-
+import axios from "axios";
 const Home = (props) => {
   const [open, setOpen] = React.useState([false, false, false, false]);
 
@@ -34,6 +33,13 @@ const Home = (props) => {
     setPIvalues(newValues);
   };
 
+  const [dumpList, setDumpList] = useState(async () => {
+    const response = await axios.get("/api/dump/all");
+    setDumpList(response.data);
+  });
+
+  if (!Array.isArray(dumpList)) return null;
+
   return (
     <>
       <Stack
@@ -52,32 +58,10 @@ const Home = (props) => {
         </Typography>
         <List sx={{ width: "100%" }}>
           <Divider sx={{ marginTop: 0 }} />
-          {[
-            {
-              title:
-                "Oracle Cloud Infrastructure Developer 2021 Associate (1Z0-1084-21)",
-              provider: "Oracle",
-              updateDate: "2022-02-14",
-            },
-            {
-              title: "AWS Certified Developer Associate",
-              provider: "Amazon",
-              updateDate: "2022-03-21",
-            },
-            {
-              title: "AWS Certified Solutions Architect - Associate SAA-C02",
-              provider: "Amazon",
-              updateDate: "2022-03-14",
-            },
-            {
-              title: "AWS Certified Cloud Practitioner (CLF-C01)",
-              provider: "Amazon",
-              updateDate: "2022-03-21",
-            },
-          ].map((value, index) => (
+          {dumpList.map((value, index) => (
             <div key={index}>
               <ListItem>
-                <ListItemText primary={value.title} />
+                <ListItemText primary={value.full_title} />
               </ListItem>
               <ListItem
                 secondaryAction={
@@ -103,9 +87,6 @@ const Home = (props) => {
                       }
                       label="보기섞기"
                     />
-                    <Button size="small" variant="contained">
-                      문제풀기
-                    </Button>
                   </>
                 }
               >
@@ -132,9 +113,38 @@ const Home = (props) => {
                   >
                     <ListItemText>
                       <b>Updated Date : </b>
-                      {value.updateDate}
+                      {value.update_date}
                     </ListItemText>
                   </ListItem>
+                  <ListItem
+                    alignItems="flex-start"
+                    sx={{ paddingTop: 0, paddingBottom: 0 }}
+                  >
+                    <ListItemText>
+                      <b>출처 : </b>
+                      {value.from}
+                    </ListItemText>
+                  </ListItem>
+                  <ListItem
+                    alignItems="flex-start"
+                    sx={{ paddingTop: 0, paddingBottom: 0 }}
+                  >
+                    <ListItemText>
+                      <b>한국어 번역 문제 / 총 문제 : </b>
+                      {value.korean_prbl_cnt} / {value.full_prbl_cnt}
+                    </ListItemText>
+                  </ListItem>
+                  {value.comment !== null && (
+                    <ListItem
+                      alignItems="flex-start"
+                      sx={{ paddingTop: 0, paddingBottom: 0 }}
+                    >
+                      <ListItemText>
+                        <b>비고 : </b>
+                        {value.comment}
+                      </ListItemText>
+                    </ListItem>
+                  )}
                 </List>
               </Collapse>
               <Divider sx={{ marginTop: 1 }} />
